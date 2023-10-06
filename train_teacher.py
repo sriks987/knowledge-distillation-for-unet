@@ -70,8 +70,8 @@ if __name__ == "__main__":
     #load teacher and student model
 
     #NV: add val folder
-    train_list = glob.glob('/home/nirvi/Internship_2020/Carvana dataset/train/train1/*jpg')
-    val_list = glob.glob('/home/nirvi/Internship_2020/Carvana dataset/val/val1/*jpg')
+    train_list = glob.glob('/content/train/*png')
+    val_list = glob.glob('/content/val/*png')
 
     tf = transforms.Compose([
         transforms.ToTensor(),
@@ -105,6 +105,6 @@ if __name__ == "__main__":
 
         #if val_metric is best, add checkpoint
 
-        torch.save(teacher.state_dict(), 'teacher_checkpoints/32/CP_32_{}.pth'.format(epoch+1))
+        torch.save(teacher.state_dict(), '/content/CP_32_{}.pth'.format(epoch+1))
         print("Checkpoint {} saved!".format(epoch+1))
         scheduler.step()
