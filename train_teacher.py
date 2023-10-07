@@ -21,7 +21,6 @@ def evaluate(teacher, val_loader):
             if torch.cuda.is_available():
                 img, gt = img.cuda(), gt.cuda()
             img, gt = Variable(img), Variable(gt)
-
             output = teacher(img)
             output = output.clamp(min = 0, max = 1)
             gt = gt.clamp(min = 0, max = 1)

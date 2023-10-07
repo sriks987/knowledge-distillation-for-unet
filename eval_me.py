@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
 
-    teacher = UNet(channel_depth = 32, n_channels = 3, n_classes=1)
-    teacher.load_state_dict(torch.load("/content/CP_32_3.pth"))
+    teacher = UNet(channel_depth = 16, n_channels = 3, n_classes=1)
+    teacher.load_state_dict(torch.load("/content/CP_16_student3.pth"))
     teacher.eval().cuda()
     val_list = glob.glob('/content/val/*png')
 

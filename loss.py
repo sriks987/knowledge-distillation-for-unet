@@ -14,7 +14,7 @@ def loss_fn_kd(student_output, teacher_output, gt ):
 
     student_output = student_output.clamp(min = 0, max = 1)
     teacher_output = teacher_output.clamp(min = 0, max = 1)
-
+    gt = torch.clamp(gt, min = 0, max = 1)
 
     student_loss = general_loss(student_output, gt)
     kd_loss = pixel_wise_loss(student_output, teacher_output)

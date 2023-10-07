@@ -16,33 +16,21 @@ teacher_weights = '/content/CP_32_5.pth'
 num_of_epochs = 5
 summary_steps = 10
 
-def fetch_teacher_outputs(teacher, train_loader):
-    print('-------Fetch teacher outputs-------')
-    teacher.eval().cuda()
-    #list of tensors
-    teacher_outputs = []
-    with torch.no_grad():
-        #trainloader gets bs images at a time. why does enumerate(tl) run for all images?
-        for i, (img, gt) in enumerate(train_loader):
-            if torch.cuda.is_available():
-              img = img.cuda()
-            img = Variable(img)
-
-            output = teacher(img)
-            teacher_outputs.append(output)
-    return teacher_outputs
-
-def train_student(student, teacher_outputs, optimizer, train_loader):
+def train_student(student, teacher, optimizer, train_loader):
     print('-------Train student-------')
     #called once for each epoch
     student.train().cuda()
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    teacher = teacher.eval().cuda()
 
     summ = []
     for i, (img, gt) in enumerate(train_loader):
-        teacher_output = teacher_outputs[i]
         if torch.cuda.is_available():
+            img = img.cuda()  # move img to the device
+            teacher_output = teacher(img)
             img, gt = img.cuda(), gt.cuda()
             teacher_output = teacher_output.cuda()
+            torch.cuda.empty_cache()
 
         img, gt = Variable(img), Variable(gt)
         teacher_output =  Variable(teacher_output)
@@ -60,7 +48,8 @@ def train_student(student, teacher_outputs, optimizer, train_loader):
         optimizer.step()
         if i % summary_steps == 0:
             #do i need to move it to CPU?
-            
+            gt = gt.clamp(min = 0, max = 1)
+            output = output.clamp(min = 0, max = 1)            
             metric = dice_loss(output, gt)
             summary = {'metric' : metric.item(), 'loss' : loss.item()}
             summ.append(summary)
@@ -84,6 +73,7 @@ def evaluate_kd(student, val_loader):
             img, gt = Variable(img), Variable(gt)
 
             output = student(img)
+            gt = gt.clamp(min = 0, max = 1)
             output = output.clamp(min = 0, max = 1)
             loss = dice_loss(output, gt)
 
@@ -135,12 +125,12 @@ if __name__ == "__main__":
 
     #train_and_evaluate_kd:
     #get teacher outputs as list of tensors
-    teacher_outputs = fetch_teacher_outputs(teacher, train_loader)
-    print(len(teacher_outputs))
+    #teacher_outputs = fetch_teacher_outputs(teacher, train_loader)
+    #print(len(teacher_outputs))
     for epoch in range(num_of_epochs):
         #train the student
         print(' --- student training: epoch {}'.format(epoch+1))
-        train_student(student, teacher_outputs, optimizer, train_loader)
+        train_student(student, teacher, optimizer, train_loader)
 
         #evaluate for one epoch on validation set
         val = evaluate_kd(student, val_loader)
