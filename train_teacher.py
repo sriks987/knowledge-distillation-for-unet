@@ -39,7 +39,6 @@ def train(teacher, optimizer, train_loader):
     criterion = nn.BCEWithLogitsLoss()
     ll = []
     for i, (img, gt) in enumerate(train_loader):
-        print('i', i)
         if torch.cuda.is_available():
             img, gt = img.cuda(), gt.cuda()
         

@@ -21,7 +21,6 @@ class listDataset(Dataset):
         assert index <= len(self), 'Error: index out of bound'
         
         img_path = self.lines[index]
-        print(img_path)
         img, gt = load_data(img_path)
 
         if self.transform is not None:
@@ -31,7 +30,6 @@ class listDataset(Dataset):
         gt = np.array(gt)
         #split to squares
         gt = np.expand_dims(gt, axis = 2)
-        print(gt.shape)
         gt = gt.transpose(2, 0, 1)
 
         '''img_left = split_squares(img, 0)

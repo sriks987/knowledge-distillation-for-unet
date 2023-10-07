@@ -11,7 +11,7 @@ import torchvision.transforms as transforms
 from torch.optim.lr_scheduler import StepLR
 
 
-teacher_weights = '/home/nirvi/Internship_2020/KDforUNET/teacher_checkpoints/32_final/CP_32_5.pth'
+teacher_weights = '/content/CP_32_5.pth'
 #student_weights = 'checkpoints/CP5.pth'
 num_of_epochs = 5
 summary_steps = 10
@@ -24,11 +24,8 @@ def fetch_teacher_outputs(teacher, train_loader):
     with torch.no_grad():
         #trainloader gets bs images at a time. why does enumerate(tl) run for all images?
         for i, (img, gt) in enumerate(train_loader):
-            print(i, 'i')
-            '''img = img[0, :, :, :, :]
-            gt = gt[0, :, :, :, :]'''
             if torch.cuda.is_available():
-                img = img.cuda(async = True)
+              img = img.cuda()
             img = Variable(img)
 
             output = teacher(img)
@@ -110,8 +107,8 @@ if __name__ == "__main__":
     #student.load_state_dict(torch.load(student_weights))
 
     #NV: add val folder
-    train_list = glob.glob('/content/train/*jpg')
-    val_list = glob.glob('/content/val/*jpg')
+    train_list = glob.glob('/content/train/*png')
+    val_list = glob.glob('/content/val/*png')
 
     tf = transforms.Compose([
         transforms.ToTensor(),
@@ -155,7 +152,7 @@ if __name__ == "__main__":
 
         #if val_metric is best, add checkpoint
 
-        torch.save(student.state_dict(), 'checkpoints/0.9/16/CP{}.pth'.format(epoch+1))
+        torch.save(student.state_dict(), '/content/CP_16_student{}.pth'.format(epoch+1))
         print("Checkpoint {} saved!".format(epoch+1))
         scheduler.step()
         

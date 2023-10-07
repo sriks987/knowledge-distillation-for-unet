@@ -32,6 +32,7 @@ if __name__ == "__main__":
     ll = []
     with torch.no_grad():
         for i,(img,gt) in enumerate(val_loader):
+            print(img)
             if torch.cuda.is_available():
                 img, gt = img.cuda(), gt.cuda()
             img, gt = Variable(img), Variable(gt)

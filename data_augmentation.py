@@ -25,8 +25,8 @@ def load_data(img_path):
     else:
         gt_path = img_path.replace("val", "val_mask")
 
-    img = Image.open(img_path).resize((640, 959))
-    gt = Image.open(gt_path).resize((640, 959))
+    img = Image.open(img_path)#.resize((640, 959))
+    gt = Image.open(gt_path)#.resize((640, 959))
     return img, gt
     #add data aug functions
     #return img
