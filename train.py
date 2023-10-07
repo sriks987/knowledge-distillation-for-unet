@@ -110,8 +110,8 @@ if __name__ == "__main__":
     #student.load_state_dict(torch.load(student_weights))
 
     #NV: add val folder
-    train_list = glob.glob('/home/nirvi/Internship_2020/Carvana dataset/train/train1/*jpg')
-    val_list = glob.glob('/home/nirvi/Internship_2020/Carvana dataset/val/val1/*jpg')
+    train_list = glob.glob('/content/train/*jpg')
+    val_list = glob.glob('/content/val/*jpg')
 
     tf = transforms.Compose([
         transforms.ToTensor(),
