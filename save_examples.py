@@ -12,10 +12,7 @@ import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
 
-    teacher = UNet(channel_depth = 1, n_channels = 3, n_classes=1)
-    teacher.load_state_dict(torch.load("/content/CP_1_1.pth"))
-    teacher.eval().cuda()
-    val_list = glob.glob('/content/val/*png')
+    val_list = glob.glob('/content/test/*png')
 
     tf = transforms.Compose([
         transforms.ToTensor(),
@@ -32,18 +29,19 @@ if __name__ == "__main__":
     ll = []
     with torch.no_grad():
         for i,(img,gt) in enumerate(val_loader):
-            if torch.cuda.is_available():
+          if torch.cuda.is_available():
                 img, gt = img.cuda(), gt.cuda()
-            img, gt = Variable(img), Variable(gt)
+          img, gt = Variable(img), Variable(gt)
+          gt = gt.clamp(min = 0, max = 1)
+          gt_np = gt.squeeze().cpu().detach().numpy()
+          plt.imsave(f"/content/knowledge-distillation-for-unet/examples4/gt_{i}.png", gt_np, cmap='gray')
 
+          for channel_depth, weight in [(1, 'CP_1_1.pth'), (4, 'CP_4_4.pth'), (4, 'CP_4_student5.pth'),(16, 'CP_16_4.pth'), (16, 'CP_16_student5.pth'), (32, 'CP_32_5.pth')]:
+            teacher = UNet(channel_depth = channel_depth, n_channels = 3, n_classes=1)
+            teacher.load_state_dict(torch.load('/content/' + weight))
+            teacher.eval().cuda()
             output = teacher(img)
             output = output.clamp(min = 0, max = 1)
-            gt = gt.clamp(min = 0, max = 1)
-
             output_np = output.squeeze().cpu().detach().numpy()
-            gt_np = gt.squeeze().cpu().detach().numpy()
-            
-            plt.imsave(f"output_{i}.png", output_np, cmap='gray')
-            plt.imsave(f"gt_{i}.png", gt_np, cmap='gray')
-            break
-
+            plt.imsave(f"/content/knowledge-distillation-for-unet/examples4/{weight}_output_{i}.png", output_np, cmap='gray')
+          break

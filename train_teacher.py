@@ -60,7 +60,7 @@ def train(teacher, optimizer, train_loader):
 
 if __name__ == "__main__":
 
-    teacher = UNet(channel_depth = 32, n_channels = 3, n_classes=1)
+    teacher = UNet(channel_depth = 16, n_channels = 3, n_classes=1)
 
     optimizer = torch.optim.Adam(teacher.parameters(), lr=1e-3)
     scheduler = StepLR(optimizer, step_size = 100, gamma = 0.2)
@@ -103,6 +103,6 @@ if __name__ == "__main__":
 
         #if val_metric is best, add checkpoint
 
-        torch.save(teacher.state_dict(), '/content/CP_32_{}.pth'.format(epoch+1))
+        torch.save(teacher.state_dict(), '/content/CP_16_{}.pth'.format(epoch+1))
         print("Checkpoint {} saved!".format(epoch+1))
         scheduler.step()

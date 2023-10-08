@@ -22,8 +22,10 @@ def reduce_channel(img):
 def load_data(img_path):
     if img_path.find("train") != -1:
         gt_path = img_path.replace("train", "train_mask")
-    else:
+    elif img_path.find("val") != -1:
         gt_path = img_path.replace("val", "val_mask")
+    else:
+        gt_path = img_path.replace("test", "test_mask")
 
     img = Image.open(img_path)#.resize((640, 959))
     gt = Image.open(gt_path)#.resize((640, 959))

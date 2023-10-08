@@ -87,7 +87,7 @@ if __name__ == "__main__":
     min_loss = 100
 
     teacher = UNet(channel_depth = 32, n_channels = 3, n_classes=1)
-    student = UNet(channel_depth = 16, n_channels = 3, n_classes=1)
+    student = UNet(channel_depth = 4, n_channels = 3, n_classes=1)
 
     optimizer = torch.optim.Adam(student.parameters(), lr=1e-3)
     scheduler = StepLR(optimizer, step_size = 100, gamma = 0.2)
@@ -142,7 +142,7 @@ if __name__ == "__main__":
 
         #if val_metric is best, add checkpoint
 
-        torch.save(student.state_dict(), '/content/CP_16_student{}.pth'.format(epoch+1))
+        torch.save(student.state_dict(), '/content/CP_4_student{}.pth'.format(epoch+1))
         print("Checkpoint {} saved!".format(epoch+1))
         scheduler.step()
         

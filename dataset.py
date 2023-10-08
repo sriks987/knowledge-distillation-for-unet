@@ -21,6 +21,7 @@ class listDataset(Dataset):
         assert index <= len(self), 'Error: index out of bound'
         
         img_path = self.lines[index]
+        print(img_path)
         img, gt = load_data(img_path)
 
         if self.transform is not None:
