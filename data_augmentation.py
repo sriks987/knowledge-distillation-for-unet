@@ -28,8 +28,11 @@ def load_data(img_path):
     else:
         gt_path = img_path.replace("test", "test_mask")
 
-    img = Image.open(img_path)#.resize((640, 959))
-    gt = Image.open(gt_path)#.resize((640, 959))
+    # img = Image.open(img_path)#.resize((640, 959))
+    # gt = Image.open(gt_path)#.resize((640, 959))
+
+    img = cv2.imread(img_path)
+    gt = cv2.imread(gt_path)
 
     img = crop_and_resize(img)
     gt = crop_and_resize(gt)

@@ -20,7 +20,7 @@ if __name__ == "__main__":
     # Creating teacher and student
     teacher = UNet(channel_depth = teacher_channel_depth, n_channels = 3, n_classes=1)
     teacher_optimizer = torch.optim.Adam(teacher.parameters(), lr=1e-3)
-    tacher_scheduler = StepLR(teacher_optimizer, step_size = 100, gamma = 0.2)
+    teacher_scheduler = StepLR(teacher_optimizer, step_size = 100, gamma = 0.2)
 
     student = UNet(channel_depth = student_channel_depth, n_channels = 3, n_classes=1)
     student_optimizer = torch.optim.Adam(student.parameters(), lr=1e-3)
@@ -70,6 +70,7 @@ if __name__ == "__main__":
         train_teacher.train_and_eval(teacher = teacher,
                                  channel_depth=  teacher_channel_depth,
                                  optimizer = teacher_optimizer,
+                                 scheduler = teacher_scheduler,
                                  train_loader = train_loader,
                                  val_loader = val_loader,
                                  num_epochs = num_epochs)
@@ -83,6 +84,8 @@ if __name__ == "__main__":
     # Train student
     train_student.train_and_eval_student(student = student,
                                          teacher = teacher,
+                                         student_optimizer = student_optimizer,
+                                         student_scheduler = student_scheduler,
                                          train_loader = train_loader,
                                          val_loader = val_loader,
                                          num_epochs = num_epochs)

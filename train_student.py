@@ -83,11 +83,11 @@ def evaluate_kd(student, val_loader):
     print('- Eval metrics:\n\tAverage Dice loss:{}'.format(mean_loss))
     return mean_loss
 
-def train_and_eval_student(student, teacher, train_loader, val_loader, num_epochs):
+def train_and_eval_student(student, teacher, student_optimizer, student_scheduler, train_loader, val_loader, num_epochs):
     for epoch in range(num_epochs):
         #train the student
         print(' --- student training: epoch {}'.format(epoch+1))
-        train_student(student, teacher, optimizer, train_loader)
+        train_student(student, teacher, student_optimizer, train_loader)
 
         #evaluate for one epoch on validation set
         val = evaluate_kd(student, val_loader)
@@ -99,7 +99,7 @@ def train_and_eval_student(student, teacher, train_loader, val_loader, num_epoch
         # Add checkpoint for epoch
         torch.save(student.state_dict(), '/content/CP_4_student{}.pth'.format(epoch+1))
         print("Checkpoint {} saved!".format(epoch+1))
-        scheduler.step()
+        student_scheduler.step()
 
 if __name__ == "__main__":
     min_loss = 100
@@ -145,7 +145,7 @@ if __name__ == "__main__":
     #get teacher outputs as list of tensors
     #teacher_outputs = fetch_teacher_outputs(teacher, train_loader)
     #print(len(teacher_outputs))
-    train_and_eval_student(student, teacher, train_loader, val_loader, num_epochs)
+    train_and_eval_student(student, teacher, optimizer, train_loader, val_loader, num_epochs)
         
 
 
