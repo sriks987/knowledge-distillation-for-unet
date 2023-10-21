@@ -1,5 +1,6 @@
 # full assembly of the sub-parts to form the complete net
 
+from torch.nn import MaxPool2d
 import torch.nn.functional as F
 
 from .unet_parts import *
@@ -8,14 +9,20 @@ class UNet(nn.Module):
     def __init__(self, channel_depth, n_channels, n_classes):
         super(UNet, self).__init__()
         self.inc = inconv(n_channels, channel_depth)
-        self.down1 = down(channel_depth, channel_depth*2)
-        self.down2 = down(channel_depth*2, channel_depth*4)
-        self.down3 = down(channel_depth*4, channel_depth*8)
-        self.down4 = down(channel_depth*8, channel_depth*8)
-        self.up1 = up(channel_depth*16, channel_depth*4)
-        self.up2 = up(channel_depth*8, channel_depth*2)
-        self.up3 = up(channel_depth*4, channel_depth)
-        self.up4 = up(channel_depth*2, channel_depth)
+
+        self.down1 = down(channel_depth, channel_depth)
+        self.down2 = down(channel_depth, channel_depth*2)               
+        self.down3 = down(channel_depth*2, channel_depth*2)
+        self.down4 = down(channel_depth*2, channel_depth*4)
+        self.down5 = down(channel_depth*4, channel_depth*4)
+        self.down6 = down(channel_depth*4, channel_depth*4)
+        
+        self.up6 = up(channel_depth*8, channel_depth*4)
+        self.up5 = up(channel_depth*8, channel_depth*4)
+        self.up4 = up(channel_depth*6, channel_depth*2)
+        self.up3 = up(channel_depth*4, channel_depth*2)
+        self.up2 = up(channel_depth*3, channel_depth)
+        self.up1 = up(channel_depth*2, channel_depth)
         self.outc = outconv(channel_depth, n_classes)
 
     def forward(self, x):
@@ -24,13 +31,17 @@ class UNet(nn.Module):
         x3 = self.down2(x2)
         x4 = self.down3(x3)
         x5 = self.down4(x4)
-        x = self.up1(x5, x4)
-        x = self.up2(x, x3)
-        x = self.up3(x, x2)
-        x = self.up4(x, x1)
+        x6 = self.down5(x5)
+        x7 = self.down6(x6)
+        
+        x = self.up6(x7, x6)
+        x = self.up5(x, x5)
+        x = self.up4(x, x4)
+        x = self.up3(x, x3)
+        x = self.up2(x, x2)
+        x = self.up1(x, x1)
         x = self.outc(x)
         return x
-        #return x
 
 '''class UNet16(nn.Module):
     def __init__(self, n_channels, n_classes):
