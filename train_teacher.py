@@ -9,7 +9,6 @@ from torch.autograd import Variable
 import torchvision.transforms as transforms
 from torch.optim.lr_scheduler import StepLR
 
-num_of_epochs = 5
 
 def evaluate(teacher, val_loader):
     teacher.eval().cuda()
@@ -32,7 +31,7 @@ def evaluate(teacher, val_loader):
     print('Eval metrics:\n\tAverabe Dice loss:{}'.format(mean_dice))
 
 
-def train(teacher, optimizer, train_loader):
+def train_teacher(teacher, optimizer, train_loader):
     print(' --- teacher training')
     teacher.train().cuda()
     criterion = nn.BCEWithLogitsLoss()
@@ -58,10 +57,24 @@ def train(teacher, optimizer, train_loader):
 
     print("Average loss over this epoch:\n\tDice:{}".format(mean_dice))
 
-if __name__ == "__main__":
+def train_and_eval(teacher, channel_depth, optimizer, scheduler, train_loader, val_loader, num_epochs):
+    for epoch in range(num_epochs):
+        print(' --- teacher training: epoch {}'.format(epoch+1))
+        train_teacher(teacher, optimizer, train_loader)
 
-    teacher = UNet(channel_depth = 16, n_channels = 3, n_classes=1)
+        # Evaluate for one epoch on validation set
+        evaluate(teacher, val_loader)
 
+        # Add checkpoint for epoch
+        torch.save(teacher.state_dict(), f'/content/CP_teacher_{channel_depth}_{epoch+1}.pth')
+        print("Checkpoint {} saved!".format(epoch+1))
+        scheduler.step()
+
+def create_teacher_stuff(teacher):
+    '''
+    Creates the teacher data structure and starts training
+    '''  
+    
     optimizer = torch.optim.Adam(teacher.parameters(), lr=1e-3)
     scheduler = StepLR(optimizer, step_size = 100, gamma = 0.2)
 
@@ -94,15 +107,17 @@ if __name__ == "__main__":
         batch_size = 1
     )    
 
-    for epoch in range(num_of_epochs):
-        print(' --- teacher training: epoch {}'.format(epoch+1))
-        train(teacher, optimizer, train_loader)
+    return {
+            "optimizer": optimizer, 
+            "scheduler": scheduler,
+            "train_loader": train_loader, 
+            "val_loader": val_loader
+            }
 
-        #evaluate for one epoch on validation set
-        evaluate(teacher, val_loader)
 
-        #if val_metric is best, add checkpoint
-
-        torch.save(teacher.state_dict(), '/content/CP_16_{}.pth'.format(epoch+1))
-        print("Checkpoint {} saved!".format(epoch+1))
-        scheduler.step()
+if __name__ == "__main__":
+    channel_depth = 16
+    num_epochs = 5
+    teacher = teacher = UNet(channel_depth = channel_depth, n_channels = 3, n_classes=1)
+    teacher_stuff = create_teacher_stuff(channel_depth)
+    train_and_eval(teacher, channel_depth, **teacher_stuff, num_epochs= num_epochs)

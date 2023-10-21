@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 from PIL import Image
+import cv2
 
 def split_squares(img, pos):
     h = img.shape[1]
@@ -29,7 +30,17 @@ def load_data(img_path):
 
     img = Image.open(img_path)#.resize((640, 959))
     gt = Image.open(gt_path)#.resize((640, 959))
-    return img, gt
-    #add data aug functions
-    #return img
-        
+
+    img = crop_and_resize(img)
+    gt = crop_and_resize(gt)
+    
+    return img, gt        
+
+def crop_and_resize(img):
+    '''
+    Crop and resize image to 144 x 144
+    '''
+    #p = cv2.resize(img, (144, 144))[68:110] / 255
+    resized_image1 = cv2.resize(img, (384, 512), interpolation=cv2.INTER_NEAREST)[240:400]
+    resized_image2 = cv2.resize(resized_image1, (256, 256), interpolation=cv2.INTER_NEAREST)
+    return resized_image2

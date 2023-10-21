@@ -10,6 +10,28 @@ import torchvision.transforms as transforms
 from torch.optim.lr_scheduler import StepLR
 import matplotlib.pyplot as plt
 
+def eval_model(unet_model, val_loader):
+    '''
+    Evaluate given model
+    '''
+    ll = []
+    with torch.no_grad():
+        for i,(img,gt) in enumerate(val_loader):
+            if torch.cuda.is_available():
+                img, gt = img.cuda(), gt.cuda()
+            img, gt = Variable(img), Variable(gt)
+
+            output = unet_model(img)
+            output = output.clamp(min = 0, max = 1)
+            gt = gt.clamp(min = 0, max = 1)
+
+            output_np = output.squeeze().cpu().detach().numpy()
+            gt_np = gt.squeeze().cpu().detach().numpy()
+            
+            plt.imsave(f"output_{i}.png", output_np, cmap='gray')
+            plt.imsave(f"gt_{i}.png", gt_np, cmap='gray')
+            break
+
 if __name__ == "__main__":
 
     teacher = UNet(channel_depth = 1, n_channels = 3, n_classes=1)
@@ -29,21 +51,6 @@ if __name__ == "__main__":
         ),
         batch_size = 1
     )    
-    ll = []
-    with torch.no_grad():
-        for i,(img,gt) in enumerate(val_loader):
-            if torch.cuda.is_available():
-                img, gt = img.cuda(), gt.cuda()
-            img, gt = Variable(img), Variable(gt)
-
-            output = teacher(img)
-            output = output.clamp(min = 0, max = 1)
-            gt = gt.clamp(min = 0, max = 1)
-
-            output_np = output.squeeze().cpu().detach().numpy()
-            gt_np = gt.squeeze().cpu().detach().numpy()
-            
-            plt.imsave(f"output_{i}.png", output_np, cmap='gray')
-            plt.imsave(f"gt_{i}.png", gt_np, cmap='gray')
-            break
+ 
+    eval_model(teacher, val_loader)
 

@@ -9,8 +9,6 @@ from torch.autograd import Variable
 import torchvision.transforms as transforms
 from torch.optim.lr_scheduler import StepLR
 
-num_of_epochs = 5
-
 def evaluate(teacher, val_loader):
     teacher.eval().cuda()
 
@@ -42,7 +40,6 @@ if __name__ == "__main__":
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
     ])
-
 
     test = torch.utils.data.DataLoader(
         dataset.listDataset(test_list,

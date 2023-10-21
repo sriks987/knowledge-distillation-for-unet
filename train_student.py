@@ -13,7 +13,7 @@ from torch.optim.lr_scheduler import StepLR
 
 teacher_weights = '/content/CP_32_5.pth'
 #student_weights = 'checkpoints/CP5.pth'
-num_of_epochs = 5
+num_epochs = 5
 summary_steps = 10
 
 def train_student(student, teacher, optimizer, train_loader):
@@ -83,6 +83,24 @@ def evaluate_kd(student, val_loader):
     print('- Eval metrics:\n\tAverage Dice loss:{}'.format(mean_loss))
     return mean_loss
 
+def train_and_eval_student(student, teacher, train_loader, val_loader, num_epochs):
+    for epoch in range(num_epochs):
+        #train the student
+        print(' --- student training: epoch {}'.format(epoch+1))
+        train_student(student, teacher, optimizer, train_loader)
+
+        #evaluate for one epoch on validation set
+        val = evaluate_kd(student, val_loader)
+        if(val < min_loss):
+            min_loss = val
+            #TODO: make min as the val loss of teacher
+            print('New best!!. Epoch: ', epoch+1)
+
+        # Add checkpoint for epoch
+        torch.save(student.state_dict(), '/content/CP_4_student{}.pth'.format(epoch+1))
+        print("Checkpoint {} saved!".format(epoch+1))
+        scheduler.step()
+
 if __name__ == "__main__":
     min_loss = 100
 
@@ -127,24 +145,7 @@ if __name__ == "__main__":
     #get teacher outputs as list of tensors
     #teacher_outputs = fetch_teacher_outputs(teacher, train_loader)
     #print(len(teacher_outputs))
-    for epoch in range(num_of_epochs):
-        #train the student
-        print(' --- student training: epoch {}'.format(epoch+1))
-        train_student(student, teacher, optimizer, train_loader)
-
-        #evaluate for one epoch on validation set
-        val = evaluate_kd(student, val_loader)
-        if(val < min_loss):
-            min_loss = val
-            #TODO: make min as the val loss of teacher
-            print('New best!!')
-
-
-        #if val_metric is best, add checkpoint
-
-        torch.save(student.state_dict(), '/content/CP_4_student{}.pth'.format(epoch+1))
-        print("Checkpoint {} saved!".format(epoch+1))
-        scheduler.step()
+    train_and_eval_student(student, teacher, train_loader, val_loader, num_epochs)
         
 
 
