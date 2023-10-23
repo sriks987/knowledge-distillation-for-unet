@@ -84,6 +84,8 @@ def evaluate_kd(student, val_loader):
     return mean_loss
 
 def train_and_eval_student(student, teacher, student_optimizer, student_scheduler, train_loader, val_loader, num_epochs):
+    min_loss = 100
+    
     for epoch in range(num_epochs):
         #train the student
         print(' --- student training: epoch {}'.format(epoch+1))
@@ -102,7 +104,6 @@ def train_and_eval_student(student, teacher, student_optimizer, student_schedule
         student_scheduler.step()
 
 if __name__ == "__main__":
-    min_loss = 100
 
     teacher = UNet(channel_depth = 32, n_channels = 3, n_classes=1)
     student = UNet(channel_depth = 4, n_channels = 3, n_classes=1)

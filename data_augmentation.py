@@ -28,9 +28,6 @@ def load_data(img_path):
     else:
         gt_path = img_path.replace("test", "test_mask")
 
-    # img = Image.open(img_path)#.resize((640, 959))
-    # gt = Image.open(gt_path)#.resize((640, 959))
-
     img = cv2.imread(img_path)
     gt = cv2.imread(gt_path)
 
@@ -41,9 +38,8 @@ def load_data(img_path):
 
 def crop_and_resize(img):
     '''
-    Crop and resize image to 144 x 144
+    Crop and resize image to 256 x 256
     '''
-    #p = cv2.resize(img, (144, 144))[68:110] / 255
     resized_image1 = cv2.resize(img, (384, 512), interpolation=cv2.INTER_NEAREST)[240:400]
     resized_image2 = cv2.resize(resized_image1, (256, 256), interpolation=cv2.INTER_NEAREST)
     return resized_image2

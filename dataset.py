@@ -31,6 +31,7 @@ class listDataset(Dataset):
             img = self.transform(img)
 
         gt = np.array(gt)
+        gt = gt = gt[:,:,0]
         gt = np.expand_dims(gt, axis = 2)
         gt = gt.transpose(2, 0, 1)
 
